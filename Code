@@ -1,0 +1,62 @@
+#define BLYNK_TEMPLATE_ID "TMPL3zFiOu4g7"
+#define BLYNK_TEMPLATE_NAME "Fire Detection and Notification System"
+#define BLYNK_AUTH_TOKEN "uUn6PIypuJuhAi89NszYPGApvVKLALs2"
+
+
+#define BLYNK_PRINT Serial
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+
+char auth[] = BLYNK_AUTH_TOKEN;
+char ssid[] = "V2025"; // Change your Wifi/ Hotspot Name
+char pass[] = "Swift_1234"; // Change your Wifi/ Hotspot Password
+
+BlynkTimer timer;
+
+const int fire= 2;
+const int buzzer= 7;
+int fire_Val;
+
+
+void setup() //Setup function - only function that is run in deep sleep mode
+{
+
+Serial.begin(9600); 
+pinMode(fire, INPUT);
+pinMode(buzzer, OUTPUT);
+WiFi.begin(ssid, pass);
+#define BLYNK_DEBUG
+
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);//Splash screen delay
+  timer.setInterval(2000L, mySensor);
+}
+
+void loop() //Loop function
+{
+  Blynk.run();
+  timer.run();
+}
+
+void mySensor()
+{
+int fire_Val = digitalRead(fire);
+Serial.println(fire_Val);
+delay(200);
+
+  if (fire_Val == 0)
+  { 
+    digitalWrite(buzzer, HIGH);
+    Blynk.logEvent("fire_alert");
+    Blynk.virtualWrite(V0, 1);
+    Serial.print("FIRE Level: ");
+    Serial.println(fire_Val);
+  }
+
+  else
+  {
+    digitalWrite(buzzer, LOW);
+    Blynk.virtualWrite(V0, 0);
+   Serial.print("FIRE Level: ");
+    Serial.println(fire_Val);
+  }
+}
